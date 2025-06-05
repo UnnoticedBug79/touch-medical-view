@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Hospital } from 'lucide-react';
+import { User, Hospital, Calendar, FileText } from 'lucide-react';
 
 interface PatientDashboardProps {
   onBack: () => void;
@@ -22,7 +22,62 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
     conditions: ["Hypertension", "Type 2 Diabetes"],
     medications: ["Metformin 500mg", "Lisinopril 10mg"],
     lastVisit: "January 15, 2024",
-    nextAppointment: "March 20, 2024 - 2:00 PM"
+    nextAppointment: "March 20, 2024 - 2:00 PM",
+    medicalHistory: [
+      {
+        id: 1,
+        condition: "Appendicitis",
+        diagnosedDate: "June 2019",
+        status: "Resolved",
+        treatment: "Appendectomy",
+        doctor: "Dr. Michael Brown"
+      },
+      {
+        id: 2,
+        condition: "Pneumonia",
+        diagnosedDate: "December 2020",
+        status: "Resolved",
+        treatment: "Antibiotics",
+        doctor: "Dr. Sarah Wilson"
+      },
+      {
+        id: 3,
+        condition: "Fractured Wrist",
+        diagnosedDate: "August 2021",
+        status: "Resolved",
+        treatment: "Cast for 6 weeks",
+        doctor: "Dr. James Davis"
+      },
+      {
+        id: 4,
+        condition: "Migraine",
+        diagnosedDate: "March 2022",
+        status: "Managed",
+        treatment: "Preventive medication",
+        doctor: "Dr. Emily Chen"
+      },
+      {
+        id: 5,
+        condition: "High Cholesterol",
+        diagnosedDate: "January 2023",
+        status: "Under Treatment",
+        treatment: "Lifestyle changes and medication",
+        doctor: "Dr. Robert Taylor"
+      }
+    ]
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'resolved':
+        return 'default';
+      case 'managed':
+        return 'secondary';
+      case 'under treatment':
+        return 'outline';
+      default:
+        return 'secondary';
+    }
   };
 
   return (
@@ -86,7 +141,7 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Hospital className="w-6 h-6 text-green-600" />
-                <span>Medical Information</span>
+                <span>Current Medical Information</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -121,6 +176,48 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
                     </div>
                   ))}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Medical History */}
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <FileText className="w-6 h-6 text-purple-600" />
+                <span>Riwayat Penyakit</span>
+              </CardTitle>
+              <CardDescription>Daftar riwayat penyakit yang pernah diderita sebelumnya</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {patientData.medicalHistory.map((history) => (
+                  <div key={history.id} className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold text-gray-800 mb-1">{history.condition}</h4>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>Diagnosed: {history.diagnosedDate}</span>
+                        </div>
+                      </div>
+                      <Badge variant={getStatusBadgeVariant(history.status)} className="text-xs">
+                        {history.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <label className="font-medium text-gray-600">Treatment:</label>
+                        <p className="text-gray-800">{history.treatment}</p>
+                      </div>
+                      <div>
+                        <label className="font-medium text-gray-600">Doctor:</label>
+                        <p className="text-gray-800">{history.doctor}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
