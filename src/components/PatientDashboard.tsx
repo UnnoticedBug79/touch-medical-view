@@ -1,14 +1,18 @@
 
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Hospital, Calendar, FileText } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { User, Hospital, Calendar, FileText, Search, Phone, AlertTriangle, Clock } from 'lucide-react';
 
 interface PatientDashboardProps {
   onBack: () => void;
 }
 
 const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Mock patient data - in a real app, this would come from the biometric authentication
   const patientData = {
     name: "Sarah Johnson",
@@ -80,6 +84,12 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
     }
   };
 
+  const filteredHistory = patientData.medicalHistory.filter(history =>
+    history.condition.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    history.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    history.treatment.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="max-w-6xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-8">
@@ -95,6 +105,19 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
           Back to Home
         </Button>
       </div>
+
+      {/* Emergency Alert */}
+      <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200 mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center space-x-3">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-red-800">Medical Alert</h3>
+              <p className="text-red-700">You have severe allergies to: {patientData.allergies.join(', ')}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Patient Information */}
@@ -129,9 +152,15 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
                 <label className="text-sm font-medium text-gray-600">Address</label>
                 <p className="text-lg font-semibold text-gray-800">{patientData.address}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Emergency Contact</label>
-                <p className="text-lg font-semibold text-gray-800">{patientData.emergencyContact}</p>
+              <div className="flex items-center justify-between bg-green-50 p-4 rounded-lg border border-green-200">
+                <div>
+                  <label className="text-sm font-medium text-green-800">Emergency Contact</label>
+                  <p className="text-lg font-semibold text-green-900">{patientData.emergencyContact}</p>
+                </div>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Now
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -150,6 +179,7 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
                 <div className="flex flex-wrap gap-2">
                   {patientData.allergies.map((allergy, index) => (
                     <Badge key={index} variant="destructive" className="text-sm px-3 py-1">
+                      <AlertTriangle className="w-3 h-3 mr-1" />
                       {allergy}
                     </Badge>
                   ))}
@@ -171,8 +201,12 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
                 <label className="text-sm font-medium text-gray-600 mb-2 block">Current Medications</label>
                 <div className="space-y-2">
                   {patientData.medications.map((medication, index) => (
-                    <div key={index} className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <div key={index} className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center justify-between">
                       <p className="font-medium text-gray-800">{medication}</p>
+                      <Badge variant="outline" className="text-xs">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Daily
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -190,34 +224,53 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
               <CardDescription>Daftar riwayat penyakit yang pernah diderita sebelumnya</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Input
+                    placeholder="Cari riwayat penyakit, dokter, atau pengobatan..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
               <div className="space-y-4">
-                {patientData.medicalHistory.map((history) => (
-                  <div key={history.id} className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-800 mb-1">{history.condition}</h4>
-                        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>Diagnosed: {history.diagnosedDate}</span>
+                {filteredHistory.length > 0 ? (
+                  filteredHistory.map((history) => (
+                    <div key={history.id} className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-800 mb-1">{history.condition}</h4>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>Diagnosed: {history.diagnosedDate}</span>
+                          </div>
+                        </div>
+                        <Badge variant={getStatusBadgeVariant(history.status)} className="text-xs">
+                          {history.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <label className="font-medium text-gray-600">Treatment:</label>
+                          <p className="text-gray-800">{history.treatment}</p>
+                        </div>
+                        <div>
+                          <label className="font-medium text-gray-600">Doctor:</label>
+                          <p className="text-gray-800">{history.doctor}</p>
                         </div>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(history.status)} className="text-xs">
-                        {history.status}
-                      </Badge>
                     </div>
-                    
-                    <div className="grid md:grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <label className="font-medium text-gray-600">Treatment:</label>
-                        <p className="text-gray-800">{history.treatment}</p>
-                      </div>
-                      <div>
-                        <label className="font-medium text-gray-600">Doctor:</label>
-                        <p className="text-gray-800">{history.doctor}</p>
-                      </div>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>No medical history found matching your search.</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -231,9 +284,11 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
             </CardHeader>
             <CardContent className="space-y-3">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors duration-200">
+                <Calendar className="w-4 h-4 mr-2" />
                 Schedule Appointment
               </Button>
               <Button variant="outline" className="w-full py-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                <FileText className="w-4 h-4 mr-2" />
                 View Test Results
               </Button>
               <Button variant="outline" className="w-full py-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
@@ -241,6 +296,10 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
               </Button>
               <Button variant="outline" className="w-full py-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                 Message Doctor
+              </Button>
+              <Button variant="destructive" className="w-full py-3 rounded-lg">
+                <Phone className="w-4 h-4 mr-2" />
+                Emergency Call
               </Button>
             </CardContent>
           </Card>
@@ -253,10 +312,38 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <p className="text-sm font-medium text-green-800">Next Appointment</p>
                 <p className="text-lg font-semibold text-green-900">{patientData.nextAppointment}</p>
+                <Button size="sm" variant="outline" className="mt-2 w-full">
+                  Reschedule
+                </Button>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <p className="text-sm font-medium text-gray-600">Last Visit</p>
                 <p className="text-lg font-semibold text-gray-800">{patientData.lastVisit}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Health Summary */}
+          <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl text-gray-800">Health Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Active Conditions</span>
+                <Badge variant="secondary">{patientData.conditions.length}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Current Medications</span>
+                <Badge variant="secondary">{patientData.medications.length}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Known Allergies</span>
+                <Badge variant="destructive">{patientData.allergies.length}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Medical History</span>
+                <Badge variant="outline">{patientData.medicalHistory.length} records</Badge>
               </div>
             </CardContent>
           </Card>
