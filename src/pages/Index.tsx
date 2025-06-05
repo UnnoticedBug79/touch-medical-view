@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Fingerprint, Hospital, User, UserRound, Shield, Zap, Heart } from 'lucide-react';
@@ -85,7 +85,7 @@ const Index = () => {
               {/* Quick Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-12">
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                  <div className="text-2xl md:text-3xl font-bold text-blue-600">< 3s</div>
+                  <div className="text-2xl md:text-3xl font-bold text-blue-600">&lt; 3s</div>
                   <div className="text-sm text-gray-600">Access Time</div>
                 </div>
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-lg">
