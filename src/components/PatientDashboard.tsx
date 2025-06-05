@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,11 @@ import {
   MapPin,
   Stethoscope,
   Users,
-  AlertCircle
+  AlertCircle,
+  Mail,
+  Home,
+  CreditCard,
+  Edit
 } from 'lucide-react';
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -49,6 +52,33 @@ interface Appointment {
   status: 'Scheduled' | 'Completed' | 'Cancelled';
 }
 
+interface PatientInfo {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  bloodType: string;
+  phone: string;
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  emergencyContact: {
+    name: string;
+    relationship: string;
+    phone: string;
+  };
+  insurance: {
+    provider: string;
+    policyNumber: string;
+    groupNumber: string;
+  };
+}
+
 const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -57,6 +87,35 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
   const [appointmentType, setAppointmentType] = useState<string>('');
   const [appointmentReason, setAppointmentReason] = useState<string>('');
+  const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
+
+  // Mock patient personal information
+  const [patientInfo, setPatientInfo] = useState<PatientInfo>({
+    id: 'P12345',
+    firstName: 'John',
+    lastName: 'Doe',
+    dateOfBirth: '1985-06-15',
+    gender: 'Male',
+    bloodType: 'A+',
+    phone: '+1 (555) 123-4567',
+    email: 'john.doe@email.com',
+    address: {
+      street: '123 Main Street',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001'
+    },
+    emergencyContact: {
+      name: 'Jane Doe',
+      relationship: 'Spouse',
+      phone: '+1 (555) 987-6543'
+    },
+    insurance: {
+      provider: 'Blue Cross Blue Shield',
+      policyNumber: 'BC123456789',
+      groupNumber: 'GRP001'
+    }
+  });
 
   // Mock data for medical history
   const medicalHistory: MedicalHistory[] = [
@@ -185,6 +244,11 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
     setAppointmentReason('');
   };
 
+  const handleSavePersonalInfo = () => {
+    setIsEditingPersonalInfo(false);
+    alert('Personal information updated successfully!');
+  };
+
   return (
     <div className="max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
@@ -200,9 +264,323 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Patient Dashboard</h1>
-            <p className="text-gray-600">Welcome back, John Doe</p>
+            <p className="text-gray-600">Welcome back, {patientInfo.firstName} {patientInfo.lastName}</p>
           </div>
         </div>
+      </div>
+
+      {/* Personal Information Section */}
+      <div className="mb-8">
+        <Card className="glass-effect">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>
+                  Your personal details and contact information
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditingPersonalInfo(!isEditingPersonalInfo)}
+                className="flex items-center gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                {isEditingPersonalInfo ? 'Cancel' : 'Edit'}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg text-gray-800 border-b pb-2">Basic Information</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="patient-id">Patient ID</Label>
+                  <Input
+                    id="patient-id"
+                    value={patientInfo.id}
+                    disabled
+                    className="bg-gray-50"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="first-name">First Name</Label>
+                    <Input
+                      id="first-name"
+                      value={patientInfo.firstName}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({...patientInfo, firstName: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="last-name">Last Name</Label>
+                    <Input
+                      id="last-name"
+                      value={patientInfo.lastName}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({...patientInfo, lastName: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dob">Date of Birth</Label>
+                  <Input
+                    id="dob"
+                    type="date"
+                    value={patientInfo.dateOfBirth}
+                    disabled={!isEditingPersonalInfo}
+                    onChange={(e) => setPatientInfo({...patientInfo, dateOfBirth: e.target.value})}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select 
+                      value={patientInfo.gender} 
+                      onValueChange={(value) => setPatientInfo({...patientInfo, gender: value})}
+                      disabled={!isEditingPersonalInfo}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="blood-type">Blood Type</Label>
+                    <Select 
+                      value={patientInfo.bloodType} 
+                      onValueChange={(value) => setPatientInfo({...patientInfo, bloodType: value})}
+                      disabled={!isEditingPersonalInfo}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="A+">A+</SelectItem>
+                        <SelectItem value="A-">A-</SelectItem>
+                        <SelectItem value="B+">B+</SelectItem>
+                        <SelectItem value="B-">B-</SelectItem>
+                        <SelectItem value="AB+">AB+</SelectItem>
+                        <SelectItem value="AB-">AB-</SelectItem>
+                        <SelectItem value="O+">O+</SelectItem>
+                        <SelectItem value="O-">O-</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg text-gray-800 border-b pb-2">Contact Information</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="phone"
+                      value={patientInfo.phone}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({...patientInfo, phone: e.target.value})}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={patientInfo.email}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({...patientInfo, email: e.target.value})}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="street">Street Address</Label>
+                  <div className="relative">
+                    <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="street"
+                      value={patientInfo.address.street}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({
+                        ...patientInfo, 
+                        address: {...patientInfo.address, street: e.target.value}
+                      })}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      value={patientInfo.address.city}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({
+                        ...patientInfo, 
+                        address: {...patientInfo.address, city: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      value={patientInfo.address.state}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({
+                        ...patientInfo, 
+                        address: {...patientInfo.address, state: e.target.value}
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="zip">ZIP Code</Label>
+                  <Input
+                    id="zip"
+                    value={patientInfo.address.zipCode}
+                    disabled={!isEditingPersonalInfo}
+                    onChange={(e) => setPatientInfo({
+                      ...patientInfo, 
+                      address: {...patientInfo.address, zipCode: e.target.value}
+                    })}
+                  />
+                </div>
+              </div>
+
+              {/* Emergency Contact & Insurance */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg text-gray-800 border-b pb-2">Emergency Contact</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="emergency-name">Contact Name</Label>
+                  <Input
+                    id="emergency-name"
+                    value={patientInfo.emergencyContact.name}
+                    disabled={!isEditingPersonalInfo}
+                    onChange={(e) => setPatientInfo({
+                      ...patientInfo, 
+                      emergencyContact: {...patientInfo.emergencyContact, name: e.target.value}
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="emergency-relationship">Relationship</Label>
+                  <Input
+                    id="emergency-relationship"
+                    value={patientInfo.emergencyContact.relationship}
+                    disabled={!isEditingPersonalInfo}
+                    onChange={(e) => setPatientInfo({
+                      ...patientInfo, 
+                      emergencyContact: {...patientInfo.emergencyContact, relationship: e.target.value}
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="emergency-phone">Contact Phone</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="emergency-phone"
+                      value={patientInfo.emergencyContact.phone}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({
+                        ...patientInfo, 
+                        emergencyContact: {...patientInfo.emergencyContact, phone: e.target.value}
+                      })}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-lg text-gray-800 border-b pb-2 mt-6">Insurance Information</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="insurance-provider">Insurance Provider</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="insurance-provider"
+                      value={patientInfo.insurance.provider}
+                      disabled={!isEditingPersonalInfo}
+                      onChange={(e) => setPatientInfo({
+                        ...patientInfo, 
+                        insurance: {...patientInfo.insurance, provider: e.target.value}
+                      })}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="policy-number">Policy Number</Label>
+                  <Input
+                    id="policy-number"
+                    value={patientInfo.insurance.policyNumber}
+                    disabled={!isEditingPersonalInfo}
+                    onChange={(e) => setPatientInfo({
+                      ...patientInfo, 
+                      insurance: {...patientInfo.insurance, policyNumber: e.target.value}
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="group-number">Group Number</Label>
+                  <Input
+                    id="group-number"
+                    value={patientInfo.insurance.groupNumber}
+                    disabled={!isEditingPersonalInfo}
+                    onChange={(e) => setPatientInfo({
+                      ...patientInfo, 
+                      insurance: {...patientInfo.insurance, groupNumber: e.target.value}
+                    })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {isEditingPersonalInfo && (
+              <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsEditingPersonalInfo(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSavePersonalInfo} className="bg-green-600 hover:bg-green-700">
+                  Save Changes
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Health Summary Cards */}
@@ -532,8 +910,8 @@ const PatientDashboard = ({ onBack }: PatientDashboardProps) => {
               <div className="p-3 border rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold">Jane Doe</p>
-                    <p className="text-sm text-gray-600">Emergency Contact</p>
+                    <p className="font-semibold">{patientInfo.emergencyContact.name}</p>
+                    <p className="text-sm text-gray-600">{patientInfo.emergencyContact.relationship}</p>
                   </div>
                   <Button size="sm" variant="outline">
                     <Phone className="w-4 h-4" />
